@@ -46,4 +46,4 @@ if __name__ == "__main__":
     exportar_excel(Osório, colunas, "Oso")
     exportar_excel(VilaMaria, colunas, "Vmt")
     exportar_excel(PortoAlegre, colunas, "Pal")
-    print(f"done\n{datetime.now()}")
+    print(f"Done!\n{datetime.now()}")
