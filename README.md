@@ -7,4 +7,4 @@ projetos para uma posterior análise gerencial.
 1- Realizar o dowload dos arquivos brutos do sistema usando Selenium.
 
 ## Bugs conhecidos.
-1- Existe um problema no cálculo dos dias que o documento está com um agente quando essa diferença entre datas é menor que 2.
+
