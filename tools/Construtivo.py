@@ -76,10 +76,17 @@ class Relatórios_Construtivo():
 
             estado_atual = self.relatorio_planejamento.loc[codigo][coluna_estado_atual]
             dia_estado_atual = datetime.strptime(self.relatorio_gerencial.loc[codigo, estado_atual][estado_atual][0], "%d/%m/%Y %H:%M")
-            diferencas.append(re.search("^[0-9]+", str((datetime.now() - dia_estado_atual))).group())
+            
+            match = re.search("(^[0-9]+) days", str((datetime.now() - dia_estado_atual)))
 
+            if match:
+                diferencas.append(match.groups()[0])
+            else:
+                diferencas.append("0")
+
+            
         self.relatorio_planejamento["Dias"] = diferencas
-        
+
 
     def selecionar_estados(self, estados: list) -> pd.DataFrame:
         return self.relatorio_planejamento.query("`Estado Workflow` == @estados")
