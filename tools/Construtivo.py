@@ -77,7 +77,7 @@ class Relatórios_Construtivo():
             estado_atual = self.relatorio_planejamento.loc[codigo][coluna_estado_atual]
             dia_estado_atual = datetime.strptime(self.relatorio_gerencial.loc[codigo, estado_atual][estado_atual][0], "%d/%m/%Y %H:%M")
             
-            match = re.search("(^[0-9]+) days", str((datetime.now() - dia_estado_atual)))
+            match = re.search("(^[0-9]+) day", str((datetime.now() - dia_estado_atual)))
 
             if match:
                 diferencas.append(match.groups()[0])
