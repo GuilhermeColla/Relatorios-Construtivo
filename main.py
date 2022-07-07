@@ -3,9 +3,9 @@ Arquivo principal que gera os relatórios para os empreendimentos CPFL.
 '''
 
 import os
+from pandas import ExcelWriter
 from tools import Construtivo
 from datetime import datetime
-
 
 
 def criar_relatorio(empreendimento: Construtivo.Relatórios_Construtivo):
@@ -24,14 +24,14 @@ def criar_relatorio(empreendimento: Construtivo.Relatórios_Construtivo):
     empreendimento.dias_com_agentes("Estado Workflow")
 
 
-def exportar_excel(empreendimento: Construtivo.Relatórios_Construtivo, colunas: list, nome_pasta: str):
-    #TODO: compactar os relatórios em um arquivo excel utilizando uma aba para cada status.
-    if not os.path.exists(f"Relatorios/{nome_pasta}"):
-        os.mkdir(f"Relatorios/{nome_pasta}")
+def exportar_excel(empreendimento: Construtivo.Relatórios_Construtivo, colunas: list, nome_arquivo: str):
+    if not os.path.exists(f"Relatorios"):
+        os.mkdir(f"Relatorios")
     
-    empreendimento.com_acessadas().to_excel(f"Relatorios/{nome_pasta}/ComAcessada.xlsx", columns=colunas)
-    empreendimento.com_CPFL().to_excel(f"Relatorios/{nome_pasta}/ComCPFL.xlsx", columns=colunas)
-    empreendimento.com_projetista().to_excel(f"Relatorios/{nome_pasta}/ComsSIEMENS.xlsx", columns=colunas)
+    with ExcelWriter(f"Relatorios/{nome_arquivo}.xlsx") as writer:
+        empreendimento.com_acessadas().to_excel(writer, sheet_name= "ComAcessadas", columns=colunas)
+        empreendimento.com_CPFL().to_excel(writer, sheet_name="ComCPFL", columns=colunas)
+        empreendimento.com_projetista().to_excel(writer, sheet_name="ComsSIEMENS", columns=colunas)
     
 
 if __name__ == "__main__":
