@@ -58,9 +58,6 @@ class Relatórios_Construtivo():
         self.relatorio_gerencial.drop(columns="Título", inplace=True)
         self.relatorio_gerencial.insert(0, "Revisão",revisões)
         self.relatorio_gerencial.insert(0, "Código", códigos)
-        
-        #df = pd.DataFrame(index_list, columns=["Código", "Revisão"])
-        #print(df)
 
 
     def dias_com_agentes(self, coluna_estado_atual: str) -> None:
@@ -91,6 +88,7 @@ class Relatórios_Construtivo():
     def selecionar_estados(self, estados: list) -> pd.DataFrame:
         return self.relatorio_planejamento.query("`Estado Workflow` == @estados")
     
+
     def com_projetista(self) -> pd.DataFrame:
         return self.selecionar_estados([
             "Em Análise",
@@ -107,7 +105,7 @@ class Relatórios_Construtivo():
             "Alerta Aprovado com Comentários"
             ])
 
-    
+
     def com_CPFL(self) -> pd.DataFrame:
         return self.selecionar_estados([
             "Para Análise CPFL",
