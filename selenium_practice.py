@@ -75,11 +75,20 @@ def download_gerencial_planejamento(nome_pasta_empreendimento: str) -> None:
     exportar_csv = driver.find_element(By.ID, "gerarCSV")
     exportar_csv.click()
     #time.sleep(5)
-    wait.until(EC.element_to_be_clickable((By.CLASS_NAME, "baixarCsv")))
-    #time.sleep(10)
+    wait.until(EC.presence_of_element_located((By.CLASS_NAME, "baixarCsv")))
     baixar_csv = driver.find_element(By.CLASS_NAME, "baixarCsv")
-    baixar_csv.click()
-    #time.sleep(10)
+    
+    caminho_pasta_download = os.getenv("DOWNLOAD_PATH")
+    check = len(os.listdir(caminho_pasta_download))
+
+    while check == len(os.listdir(caminho_pasta_download)):
+        baixar_csv.click()
+        print("click baixar.")
+        time.sleep(2)
+    
+    novo_arquivo = os.listdir(caminho_pasta_download)[0]
+    os.rename(os.path.join(caminho_pasta_download, novo_arquivo), "gerencial".join(nome_pasta_empreendimento))
+    exit()
 
     # Download vizualiza planejamento
     driver.switch_to.window(driver.window_handles[0])
