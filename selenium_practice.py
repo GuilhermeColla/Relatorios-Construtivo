@@ -7,7 +7,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.service import Service
 import time
-
+from glob import glob
 
 def download_gerencial_planejamento(nome_pasta_empreendimento: str) -> None:
     
@@ -71,7 +71,7 @@ def download_gerencial_planejamento(nome_pasta_empreendimento: str) -> None:
     relatorio_gerencial.click()
     driver.switch_to.window(driver.window_handles[1])
     wait.until(EC.element_to_be_clickable((By.ID, "gerarCSV")))
-    #time.sleep(5)
+    time.sleep(1)
     exportar_csv = driver.find_element(By.ID, "gerarCSV")
     exportar_csv.click()
     #time.sleep(5)
@@ -85,9 +85,12 @@ def download_gerencial_planejamento(nome_pasta_empreendimento: str) -> None:
         baixar_csv.click()
         print("click baixar.")
         time.sleep(2)
-    
-    novo_arquivo = os.listdir(caminho_pasta_download)[0]
-    os.rename(os.path.join(caminho_pasta_download, novo_arquivo), "gerencial".join(nome_pasta_empreendimento))
+    time.sleep(2)
+
+    arquivo_novo = max(glob(caminho_pasta_download+"\*.csv"), key=os.path.getctime)
+    os.rename(arquivo_novo, caminho_pasta_download+"")
+
+    #os.rename(os.path.join(caminho_pasta_download, novo_arquivo), "gerencial".join(nome_pasta_empreendimento))
     exit()
 
     # Download vizualiza planejamento
