@@ -132,9 +132,8 @@ class Relatórios_Construtivo():
 
 def download_gerencial_planejamento(nome_pasta_empreendimento: str) -> None:
 
-    """Essa função é como eu estudei selenium para realizar o download
-    dos relatórios brutos que preciso. Esse arquivo está aqui apenas para 
-    referência. Essa função será implementada no Construtivo.py."""
+    """Esta função faz o download dos relatórios gerenciais e de planejamento
+    dos empreendimentos da empresa no Construtivo."""
 
     #TODO: Implementar essa função com OOP.
     #TODO: Error handling.
@@ -151,7 +150,7 @@ def download_gerencial_planejamento(nome_pasta_empreendimento: str) -> None:
 
 
     #Conectando ao site colaborativo.
-    driver.get("https://incorporadora.colaborativo.com/ssf/a/do?p_name=ss_forum&p_action=1&binderId=37&action=view_permalink&entityType=folder&novl_url=1&novl_landing=1?novl_root=1#1634731550743")
+    driver.get(os.getenv("CONSTRUTIVO_URL"))
 
 
     #Obtendo as caixas de texto para login, senha e botão de entrar.
