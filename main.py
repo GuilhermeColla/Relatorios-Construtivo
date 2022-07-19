@@ -37,19 +37,19 @@ def exportar_excel(empreendimento: Construtivo.Relatórios_Construtivo, colunas:
 if __name__ == "__main__":
 
 
-    Construtivo.download_gerencial_planejamento("CPFL_Sul_II_VMT_PE")
-    Construtivo.download_gerencial_planejamento("CPFL_Sul_II_OSO3_PE")
-    Construtivo.download_gerencial_planejamento("CPFL_Sul_II_PAL1_PE")
-    
-
-    Osório = Construtivo.Relatórios_Construtivo("Construtivo/gerencial_CPFL_Sul_II_OSO3_PE.csv", "Construtivo/planejamento_CPFL_Sul_II_OSO3_PE.csv")
-    VilaMaria = Construtivo.Relatórios_Construtivo("Construtivo/gerencial_CPFL_Sul_II_VMT_PE.csv", "Construtivo/planejamento_CPFL_Sul_II_VMT_PE.csv")
-    PortoAlegre = Construtivo.Relatórios_Construtivo("Construtivo/gerencial_CPFL_Sul_II_PAL1_PE.csv", "Construtivo/planejamento_CPFL_Sul_II_PAL1_PE.csv")
-    criar_relatorio(Osório)
-    criar_relatorio(VilaMaria)
-    criar_relatorio(PortoAlegre)
-    colunas = ["Pasta", "Descricao", "Revisão", "Estado Workflow", "Dias"]
-    exportar_excel(Osório, colunas, "Oso")
-    exportar_excel(VilaMaria, colunas, "Vmt")
-    exportar_excel(PortoAlegre, colunas, "Pal")
-    print(f"Done!\n{datetime.now()}")
+    Construtivo.Download_Relatorios("CPFL_Sul_II_VMT_PE")
+    #Construtivo.download_gerencial_planejamento("CPFL_Sul_II_OSO3_PE")
+    #Construtivo.download_gerencial_planejamento("CPFL_Sul_II_PAL1_PE")
+    #
+#
+    #Osório = Construtivo.Relatórios_Construtivo("Construtivo/gerencial_CPFL_Sul_II_OSO3_PE.csv", "Construtivo/planejamento_CPFL_Sul_II_OSO3_PE.csv")
+    #VilaMaria = Construtivo.Relatórios_Construtivo("Construtivo/gerencial_CPFL_Sul_II_VMT_PE.csv", "Construtivo/planejamento_CPFL_Sul_II_VMT_PE.csv")
+    #PortoAlegre = Construtivo.Relatórios_Construtivo("Construtivo/gerencial_CPFL_Sul_II_PAL1_PE.csv", "Construtivo/planejamento_CPFL_Sul_II_PAL1_PE.csv")
+    #criar_relatorio(Osório)
+    #criar_relatorio(VilaMaria)
+    #criar_relatorio(PortoAlegre)
+    #colunas = ["Pasta", "Descricao", "Revisão", "Estado Workflow", "Dias"]
+    #exportar_excel(Osório, colunas, "Oso")
+    #exportar_excel(VilaMaria, colunas, "Vmt")
+    #exportar_excel(PortoAlegre, colunas, "Pal")
+    #print(f"Done!\n{datetime.now()}")
