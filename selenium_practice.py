@@ -87,11 +87,15 @@ def download_gerencial_planejamento(nome_pasta_empreendimento: str) -> None:
         time.sleep(2)
     time.sleep(2)
 
-    arquivo_novo = max(glob(caminho_pasta_download+"\*.csv"), key=os.path.getctime)
-    os.rename(arquivo_novo, caminho_pasta_download+"")
+    arquivo_novo = max(glob(caminho_pasta_download+f"/*.csv"), key=os.path.getctime)
+    renomear = "C:/Users/guilherme.colla/Documents/Python Scripts/env1/Construtivo/gerencial_"+nome_pasta_empreendimento+".csv"
+    try:
+        os.remove(renomear)
+    except Exception:
+        pass
+    os.rename(arquivo_novo, renomear)
 
     #os.rename(os.path.join(caminho_pasta_download, novo_arquivo), "gerencial".join(nome_pasta_empreendimento))
-    exit()
 
     # Download vizualiza planejamento
     driver.switch_to.window(driver.window_handles[0])
@@ -107,69 +111,26 @@ def download_gerencial_planejamento(nome_pasta_empreendimento: str) -> None:
     wait.until(EC.element_to_be_clickable((By.CLASS_NAME, "baixarCsv")))
     #time.sleep(10)
     baixar_csv = driver.find_element(By.CLASS_NAME, "baixarCsv")
-    baixar_csv.click()
+    while check == len(os.listdir(caminho_pasta_download)):
+        baixar_csv.click()
+        print("click baixar.")
+        time.sleep(2)
     #time.sleep(5)
-    driver.quit()
-    exit()
     
+    arquivo_novo = max(glob(caminho_pasta_download+f"/*.csv"), key=os.path.getctime)
+    renomear = "C:/Users/guilherme.colla/Documents/Python Scripts/env1/Construtivo/planejamento_"+nome_pasta_empreendimento+".csv"
+    try:
+        os.remove(renomear)
+    except Exception:
+        pass
+    os.rename(arquivo_novo, renomear)
     
-    
-    
-    CPFL_Geracao = driver.find_element(By.CSS_SELECTOR, "span[class='gwt-InlineLabel vibe-dataTableEntry-title']")
-    CPFL_Geracao.click()
-    projetos = []
-    while len(projetos) <= 1:
-        projetos = driver.find_elements(By.CSS_SELECTOR, "span[class='gwt-InlineLabel childBindersWidget_ListOfFoldersPanel_folderLabel']")
-    
-    print(f"{type(projetos)}\n{len(projetos)}")
-    for element in projetos:
-        if nome_pasta_empreendimento in element.text:
-            element.click()
-            break
-            
-    #time.sleep(5)
-    frame = driver.find_element(By.XPATH, "//*[@id='contentControl']")
-    print(frame)
-    driver.switch_to.frame(frame)
-    relatorio = driver.find_element(By.ID, "menu2")
-    planejamento = driver.find_element(By.ID, "menu3")
-
-    # Download relatório gerencial
-    relatorio.click()
-    relatorio_gerencial = driver.find_element(By.ID, "botaoRelatorioGerencial")
-    relatorio_gerencial.click()
-    driver.switch_to.window(driver.window_handles[1])
-    wait.until(EC.element_to_be_clickable((By.ID, "gerarCSV")))
-    #time.sleep(5)
-    exportar_csv = driver.find_element(By.ID, "gerarCSV")
-    exportar_csv.click()
-    #time.sleep(5)
-    wait.until(EC.element_to_be_clickable((By.CLASS_NAME, "baixarCsv")))
-    #time.sleep(10)
-    baixar_csv = driver.find_element(By.CLASS_NAME, "baixarCsv")
-    baixar_csv.click()
-    #time.sleep(10)
-
-    # Download vizualiza planejamento
-    driver.switch_to.window(driver.window_handles[0])
-    driver.switch_to.frame(frame)
-    planejamento.click()
-    visualiza_planejamento = driver.find_element(By.ID, "visuItensPub")
-    visualiza_planejamento.click()
-    driver.switch_to.window(driver.window_handles[2])
-    wait.until(EC.element_to_be_clickable((By.ID, "gerarCSV")))
-    #time.sleep(2)
-    exportar_csv = driver.find_element(By.ID, "gerarCSV")
-    exportar_csv.click()
-    wait.until(EC.element_to_be_clickable((By.CLASS_NAME, "baixarCsv")))
-    #time.sleep(10)
-    baixar_csv = driver.find_element(By.CLASS_NAME, "baixarCsv")
-    baixar_csv.click()
-    #time.sleep(5)
     driver.quit()
 
+    
+    
 if __name__ == "__main__":
     download_gerencial_planejamento("CPFL_Sul_II_VMT_PE")
-    #download_gerencial_planejamento("OSO3_PE")
-    #download_gerencial_planejamento("PAL1_PE")
-    #download_gerencial_planejamento("Sul_I_PE")
+    download_gerencial_planejamento("CPFL_Sul_II_OSO3_PE")
+    download_gerencial_planejamento("CPFL_Sul_II_PAL1_PE")
+    download_gerencial_planejamento("CPFL_Sul_I_PE")

@@ -36,9 +36,15 @@ def exportar_excel(empreendimento: Construtivo.Relatórios_Construtivo, colunas:
 
 if __name__ == "__main__":
 
-    Osório = Construtivo.Relatórios_Construtivo("Construtivo/gerencial_oso.csv", "Construtivo/planejamento_oso.csv")
-    VilaMaria = Construtivo.Relatórios_Construtivo("Construtivo/gerencial_vmt.csv", "Construtivo/planejamento_vmt.csv")
-    PortoAlegre = Construtivo.Relatórios_Construtivo("Construtivo/gerencial_pal.csv", "Construtivo/planejamento_pal.csv")
+
+    Construtivo.download_gerencial_planejamento("CPFL_Sul_II_VMT_PE")
+    Construtivo.download_gerencial_planejamento("CPFL_Sul_II_OSO3_PE")
+    Construtivo.download_gerencial_planejamento("CPFL_Sul_II_PAL1_PE")
+    
+
+    Osório = Construtivo.Relatórios_Construtivo("Construtivo/gerencial_CPFL_Sul_II_OSO3_PE.csv", "Construtivo/planejamento_CPFL_Sul_II_OSO3_PE.csv")
+    VilaMaria = Construtivo.Relatórios_Construtivo("Construtivo/gerencial_CPFL_Sul_II_VMT_PE.csv", "Construtivo/planejamento_CPFL_Sul_II_VMT_PE.csv")
+    PortoAlegre = Construtivo.Relatórios_Construtivo("Construtivo/gerencial_CPFL_Sul_II_PAL1_PE.csv", "Construtivo/planejamento_CPFL_Sul_II_PAL1_PE.csv")
     criar_relatorio(Osório)
     criar_relatorio(VilaMaria)
     criar_relatorio(PortoAlegre)

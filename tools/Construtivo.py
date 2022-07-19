@@ -15,7 +15,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC, wait
 from selenium.webdriver.chrome.service import Service
 import time
-
+from glob import glob
 
 class Relatórios_Construtivo():
     def __init__(self, caminho_relatorio_gerencial: str, caminho_relatorio_planejamento):
@@ -131,19 +131,29 @@ class Relatórios_Construtivo():
 
 
 def download_gerencial_planejamento(nome_pasta_empreendimento: str) -> None:
-    
+
+    """Essa função é como eu estudei selenium para realizar o download
+    dos relatórios brutos que preciso. Esse arquivo está aqui apenas para 
+    referência. Essa função será implementada no Construtivo.py."""
+
+    #TODO: Implementar essa função com OOP.
+    #TODO: Error handling.
     #Carregando os dados de usuário
     load_dotenv()
 
     #Criando uma janela do Chrome.
+
     service = Service(executable_path=ChromeDriverManager().install())
     driver = webdriver.Chrome(service=service)
     driver.implicitly_wait(5)
     wait = WebDriverWait(driver, 60)
 
+
+
     #Conectando ao site colaborativo.
     driver.get("https://incorporadora.colaborativo.com/ssf/a/do?p_name=ss_forum&p_action=1&binderId=37&action=view_permalink&entityType=folder&novl_url=1&novl_landing=1?novl_root=1#1634731550743")
-    
+
+
     #Obtendo as caixas de texto para login, senha e botão de entrar.
     wait.until(EC.element_to_be_clickable((By.ID, "loginOkBtn")))
     login = driver.find_element(By.ID, "j_usernameId")
@@ -154,24 +164,27 @@ def download_gerencial_planejamento(nome_pasta_empreendimento: str) -> None:
     login.send_keys(os.getenv("LOGIN"))
     senha.send_keys(os.getenv("SENHA"))
     botao_entrar.click()
-    time.sleep(5)
+    #time.sleep(5)
 
     #A partir daqui já estamos conectados na área de trabalho do colaborativo.
     #Navegando os menus.
+
+
+
+
+
     wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "span[class='gwt-InlineLabel vibe-dataTableEntry-title']")))
-    CPFL_Geracao = driver.find_element(By.CSS_SELECTOR, "span[class='gwt-InlineLabel vibe-dataTableEntry-title']")
-    CPFL_Geracao.click()
-    time.sleep(5)
-    projetos = driver.find_elements(By.CSS_SELECTOR, "span[class='gwt-InlineLabel childBindersWidget_ListOfFoldersPanel_folderLabel']")
-    #time.sleep(3)
-    for element in projetos:
-        if nome_pasta_empreendimento in element.text:
-            element.click()
+    pastas = driver.find_elements(By.CSS_SELECTOR, "div[class='gwt-Label workspaceTreeBinderAnchor']")
+    for pasta in pastas:
+        if nome_pasta_empreendimento == pasta.text:
+            pasta.click()
             break
-            
+
+
     time.sleep(5)
     frame = driver.find_element(By.XPATH, "//*[@id='contentControl']")
     driver.switch_to.frame(frame)
+    wait.until(EC.element_to_be_clickable((By.ID, "menu2")))
     relatorio = driver.find_element(By.ID, "menu2")
     planejamento = driver.find_element(By.ID, "menu3")
 
@@ -181,15 +194,31 @@ def download_gerencial_planejamento(nome_pasta_empreendimento: str) -> None:
     relatorio_gerencial.click()
     driver.switch_to.window(driver.window_handles[1])
     wait.until(EC.element_to_be_clickable((By.ID, "gerarCSV")))
-    time.sleep(5)
+    time.sleep(1)
     exportar_csv = driver.find_element(By.ID, "gerarCSV")
     exportar_csv.click()
-    time.sleep(5)
-    wait.until(EC.element_to_be_clickable((By.CLASS_NAME, "baixarCsv")))
-    time.sleep(10)
+    #time.sleep(5)
+    wait.until(EC.presence_of_element_located((By.CLASS_NAME, "baixarCsv")))
     baixar_csv = driver.find_element(By.CLASS_NAME, "baixarCsv")
-    baixar_csv.click()
-    time.sleep(10)
+
+    caminho_pasta_download = os.getenv("DOWNLOAD_PATH")
+    check = len(os.listdir(caminho_pasta_download))
+
+    while check == len(os.listdir(caminho_pasta_download)):
+        baixar_csv.click()
+        print("click baixar.")
+        time.sleep(2)
+    time.sleep(2)
+
+    arquivo_novo = max(glob(caminho_pasta_download+f"/*.csv"), key=os.path.getctime)
+    renomear = "C:/Users/guilherme.colla/Documents/Python Scripts/env1/Construtivo/gerencial_"+nome_pasta_empreendimento+".csv"
+    try:
+        os.remove(renomear)
+    except Exception:
+        pass
+    os.rename(arquivo_novo, renomear)
+
+    #os.rename(os.path.join(caminho_pasta_download, novo_arquivo), "gerencial".join(nome_pasta_empreendimento))
 
     # Download vizualiza planejamento
     driver.switch_to.window(driver.window_handles[0])
@@ -199,12 +228,24 @@ def download_gerencial_planejamento(nome_pasta_empreendimento: str) -> None:
     visualiza_planejamento.click()
     driver.switch_to.window(driver.window_handles[2])
     wait.until(EC.element_to_be_clickable((By.ID, "gerarCSV")))
-    time.sleep(2)
+    #time.sleep(2)
     exportar_csv = driver.find_element(By.ID, "gerarCSV")
     exportar_csv.click()
     wait.until(EC.element_to_be_clickable((By.CLASS_NAME, "baixarCsv")))
-    time.sleep(10)
+    #time.sleep(10)
     baixar_csv = driver.find_element(By.CLASS_NAME, "baixarCsv")
-    baixar_csv.click()
-    time.sleep(5)
+    while check == len(os.listdir(caminho_pasta_download)):
+        baixar_csv.click()
+        print("click baixar.")
+        time.sleep(2)
+    #time.sleep(5)
+
+    arquivo_novo = max(glob(caminho_pasta_download+f"/*.csv"), key=os.path.getctime)
+    renomear = "C:/Users/guilherme.colla/Documents/Python Scripts/env1/Construtivo/planejamento_"+nome_pasta_empreendimento+".csv"
+    try:
+        os.remove(renomear)
+    except Exception:
+        pass
+    os.rename(arquivo_novo, renomear)
+
     driver.quit()
