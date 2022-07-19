@@ -83,7 +83,6 @@ def download_gerencial_planejamento(nome_pasta_empreendimento: str) -> None:
 
     while check == len(os.listdir(caminho_pasta_download)):
         baixar_csv.click()
-        print("click baixar.")
         time.sleep(2)
     time.sleep(2)
 
