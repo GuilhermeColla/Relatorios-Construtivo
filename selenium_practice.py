@@ -29,7 +29,6 @@ def download_gerencial_planejamento(nome_pasta_empreendimento: str) -> None:
 
     #Conectando ao site colaborativo.
     driver.get(os.getenv("CONSTRUTIVO_URL"))
-
     
 
     #Obtendo as caixas de texto para login, senha e botão de entrar.
