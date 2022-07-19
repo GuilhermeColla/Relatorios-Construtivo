@@ -238,6 +238,9 @@ class Download_Relatorios():
         wait.until(EC.element_to_be_clickable((By.CLASS_NAME, "baixarCsv")))
         #time.sleep(10)
         baixar_csv = driver.find_element(By.CLASS_NAME, "baixarCsv")
+
+        check = len(os.listdir(self.caminho_pasta_download))
+        
         while check == len(os.listdir(self.caminho_pasta_download)):
             baixar_csv.click()
             print("click baixar.")
