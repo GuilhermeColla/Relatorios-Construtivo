@@ -6,7 +6,7 @@ import os
 from pandas import ExcelWriter
 from tools import Construtivo
 from datetime import datetime
-
+import time
 
 def criar_relatorio(empreendimento: Construtivo.Relatórios_Construtivo):
     empreendimento.remover_colunas(empreendimento.relatorio_gerencial, ["Seq.", "Autor", "Unnamed: 32"])
@@ -29,15 +29,25 @@ def exportar_excel(empreendimento: Construtivo.Relatórios_Construtivo, colunas:
         os.mkdir(f"Relatorios")
     
     with ExcelWriter(f"Relatorios/{nome_arquivo}.xlsx") as writer:
-        empreendimento.com_acessadas().to_excel(writer, sheet_name= "ComAcessadas", columns=colunas)
         empreendimento.com_CPFL().to_excel(writer, sheet_name="ComCPFL", columns=colunas)
+        empreendimento.com_acessadas().to_excel(writer, sheet_name= "ComAcessadas", columns=colunas)
         empreendimento.com_projetista().to_excel(writer, sheet_name="ComsSIEMENS", columns=colunas)
     
 
 if __name__ == "__main__":
 
 
-    Construtivo.Download_Relatorios("CPFL_Sul_II_VMT_PE")
+    downloader = Construtivo.Download_Relatorios()
+    downloader.acessar_empreendimento("CPFL_Sul_II_OSO3_PE")
+    downloader.download_relatorio_gerencial()
+    #downloader.download_visualiza_planejamento()
+    downloader.acessar_empreendimento("CPFL_Sul_II_VMT_PE")
+    downloader.download_relatorio_gerencial()
+    #downloader.download_visualiza_planejamento()
+    downloader.acessar_empreendimento("CPFL_Sul_II_PAL1_PE")
+    downloader.download_relatorio_gerencial()
+    #downloader.download_visualiza_planejamento()
+    
     #Construtivo.download_gerencial_planejamento("CPFL_Sul_II_OSO3_PE")
     #Construtivo.download_gerencial_planejamento("CPFL_Sul_II_PAL1_PE")
     #

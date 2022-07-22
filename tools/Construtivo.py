@@ -156,7 +156,7 @@ class Download_Relatorios():
 
     def login(self) -> None:
         #Guardando a janela principal para depois.
-        self.janela_principal = self.driver.window_handles[0]
+        self.janela_principal = self.driver.current_window_handle
         #Conectando ao site colaborativo.
         self.driver.get(os.getenv("CONSTRUTIVO_URL"))
         #Obtendo as caixas de texto para login, senha e botão de entrar.
@@ -167,6 +167,7 @@ class Download_Relatorios():
         self.driver.find_element(By.ID, "j_passwordId").send_keys(os.getenv("SENHA"))
         #Click no botão de login.
         self.driver.find_element(By.ID, "loginOkBtn").click()
+        time.sleep(3)
 
 
     def acessar_empreendimento(self, nome_pasta_empreendimento: str) -> None:
@@ -175,8 +176,9 @@ class Download_Relatorios():
         dependendo da necessidade."""
         #A partir daqui já estamos conectados na área de trabalho do colaborativo.
         #Navegaremos as pastas pela hierarquia que fica na esquerda da pagina.
+        self.driver.switch_to.default_content()
         self.nome_pasta_empreendimento = nome_pasta_empreendimento
-        self.wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "span[class='gwt-InlineLabel vibe-dataTableEntry-title']")))
+        #self.wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "span[class='gwt-InlineLabel vibe-dataTableEntry-title']")))
         pastas = self.driver.find_elements(By.CSS_SELECTOR, "div[class='gwt-Label workspaceTreeBinderAnchor']")
         try:
             for pasta in pastas:
@@ -185,24 +187,22 @@ class Download_Relatorios():
                     break
         except Exception:
             print("Pasta não encontrada")
+        time.sleep(3)
             
 
     def download_relatorio_gerencial(self) -> None:
-        #time.sleep(5)
         self.frame = self.driver.find_element(By.XPATH, "//*[@id='contentControl']")
         self.driver.switch_to.frame(self.frame)
-        wait.until(EC.element_to_be_clickable((By.ID, "menu2")))
+        self.wait.until(EC.element_to_be_clickable((By.ID, "menu2")))
         #click no botão de relatório
         self.driver.find_element(By.ID, "menu2").click()
         
         # Download relatório gerencial
         self.driver.find_element(By.ID, "botaoRelatorioGerencial").click()
         self.driver.switch_to.window(self.driver.window_handles[1])
-        wait.until(EC.element_to_be_clickable((By.ID, "gerarCSV")))
-        #time.sleep(1)
+        self.wait.until(EC.element_to_be_clickable((By.ID, "gerarCSV")))
         self.driver.find_element(By.ID, "gerarCSV").click()
-        #time.sleep(5)
-        wait.until(EC.presence_of_element_located((By.CLASS_NAME, "baixarCsv")))
+        self.wait.until(EC.presence_of_element_located((By.CLASS_NAME, "baixarCsv")))
         baixar_csv = self.driver.find_element(By.CLASS_NAME, "baixarCsv")
         
         check = len(os.listdir(self.caminho_pasta_download))
@@ -214,7 +214,8 @@ class Download_Relatorios():
         time.sleep(2)
 
         arquivo_novo = max(glob(self.caminho_pasta_download+f"/*.csv"), key=os.path.getctime)
-        renomear = "C:/Users/guilherme.colla/Documents/Python Scripts/env1/Construtivo/gerencial_"+self.nome_pasta_empreendimento+".csv"
+        #TODO: Utilizar .env nesta variável
+        renomear = "C:/Users/gui_3/Documents/Python Scripts/Construtivo/Relatorios-Construtivo/teste/gerencial_"+self.nome_pasta_empreendimento+".csv"
         try:
             os.remove(renomear)
         except Exception:
@@ -230,13 +231,11 @@ class Download_Relatorios():
         # Click no botão planejamento.
         self.driver.find_element(By.ID, "menu3").click()
         # Click no botão visualiza planejamento.
-        self.driver.find_element(By.ID, "visuItensPub")
+        self.driver.find_element(By.ID, "visuItensPub").click()
         self.driver.switch_to.window(self.driver.window_handles[1])
-        wait.until(EC.element_to_be_clickable((By.ID, "gerarCSV")))
-        #time.sleep(2)
+        self.wait.until(EC.element_to_be_clickable((By.ID, "gerarCSV")))
         self.driver.find_element(By.ID, "gerarCSV").click()
-        wait.until(EC.element_to_be_clickable((By.CLASS_NAME, "baixarCsv")))
-        #time.sleep(10)
+        self.wait.until(EC.element_to_be_clickable((By.CLASS_NAME, "baixarCsv")))
         baixar_csv = self.driver.find_element(By.CLASS_NAME, "baixarCsv")
 
         check = len(os.listdir(self.caminho_pasta_download))
@@ -245,10 +244,10 @@ class Download_Relatorios():
             baixar_csv.click()
             print("click baixar.")
             time.sleep(2)
-        #time.sleep(5)
+        time.sleep(2)
 
         arquivo_novo = max(glob(self.caminho_pasta_download+f"/*.csv"), key=os.path.getctime)
-        renomear = "C:/Users/guilherme.colla/Documents/Python Scripts/env1/Construtivo/planejamento_"+self.nome_pasta_empreendimento+".csv"
+        renomear = "C:/Users/gui_3/Documents/Python Scripts/Construtivo/Relatorios-Construtivo/teste/planejamento_"+self.nome_pasta_empreendimento+".csv"
         try:
             os.remove(renomear)
         except Exception:
