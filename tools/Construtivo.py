@@ -4,6 +4,7 @@ adequando-os para a ferramenta em desenvolvimento.
 '''
 
 import re
+import shutil
 import pandas as pd
 from datetime import datetime
 import os
@@ -139,7 +140,6 @@ class Download_Relatorios():
     fazer o download dos relatórios gerenciais e de planejamento dos 
     empreendimentos da empresa no Construtivo."""
 
-    #TODO: Implementar essa função com OOP.
     #TODO: Error handling.
     
     def __init__(self) -> None:
@@ -151,7 +151,13 @@ class Download_Relatorios():
         self.driver = webdriver.Chrome(service=self.service)
         self.driver.implicitly_wait(60)
         self.wait = WebDriverWait(self.driver, 60)
+        self.limpar_arquivos_antigos()        
         self.login()
+
+    def limpar_arquivos_antigos(self):
+        if os.path.isdir(os.getenv("SAVE_PATH")):
+            shutil.rmtree(os.getenv("SAVE_PATH"))
+        os.mkdir(os.getenv("SAVE_PATH"))
 
 
     def login(self) -> None:
@@ -214,8 +220,8 @@ class Download_Relatorios():
         time.sleep(2)
 
         arquivo_novo = max(glob(self.caminho_pasta_download+f"/*.csv"), key=os.path.getctime)
-        #TODO: Utilizar .env nesta variável
-        renomear = "C:/Users/gui_3/Documents/Python Scripts/Construtivo/Relatorios-Construtivo/teste/gerencial_"+self.nome_pasta_empreendimento+".csv"
+        renomear = os.getenv("SAVE_PATH")
+        renomear = renomear + "/gerencial_" + self.nome_pasta_empreendimento + ".csv"
         try:
             os.remove(renomear)
         except Exception:
@@ -247,7 +253,8 @@ class Download_Relatorios():
         time.sleep(2)
 
         arquivo_novo = max(glob(self.caminho_pasta_download+f"/*.csv"), key=os.path.getctime)
-        renomear = "C:/Users/gui_3/Documents/Python Scripts/Construtivo/Relatorios-Construtivo/teste/planejamento_"+self.nome_pasta_empreendimento+".csv"
+        renomear = os.getenv("SAVE_PATH")
+        renomear = renomear + "/planejamento_" + self.nome_pasta_empreendimento + ".csv"
         try:
             os.remove(renomear)
         except Exception:
@@ -255,3 +262,6 @@ class Download_Relatorios():
         os.rename(arquivo_novo, renomear)
         self.driver.close()
         self.driver.switch_to.window(self.janela_principal)
+
+    def fechar(self) -> None:
+        self.driver.quit()

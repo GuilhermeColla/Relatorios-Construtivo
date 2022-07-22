@@ -87,7 +87,8 @@ def download_gerencial_planejamento(nome_pasta_empreendimento: str) -> None:
     time.sleep(2)
 
     arquivo_novo = max(glob(caminho_pasta_download+f"/*.csv"), key=os.path.getctime)
-    renomear = "C:/Users/guilherme.colla/Documents/Python Scripts/env1/Construtivo/gerencial_"+nome_pasta_empreendimento+".csv"
+    renomear = os.getenv("SAVE_PATH")
+    renomear = renomear + "gerencial_" + nome_pasta_empreendimento + ".csv"
     try:
         os.remove(renomear)
     except Exception:
@@ -116,7 +117,8 @@ def download_gerencial_planejamento(nome_pasta_empreendimento: str) -> None:
     #time.sleep(5)
     
     arquivo_novo = max(glob(caminho_pasta_download+f"/*.csv"), key=os.path.getctime)
-    renomear = "C:/Users/guilherme.colla/Documents/Python Scripts/env1/Construtivo/planejamento_"+nome_pasta_empreendimento+".csv"
+    renomear = os.getenv("SAVE_PATH")
+    renomear = renomear + "planejamento_" + nome_pasta_empreendimento + ".csv"
     try:
         os.remove(renomear)
     except Exception:
