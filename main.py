@@ -30,7 +30,7 @@ def exportar_excel(empreendimento: Construtivo.Relatórios_Construtivo, colunas:
     with ExcelWriter(f"Relatorios/{nome_arquivo}.xlsx") as writer:
         empreendimento.com_CPFL().to_excel(writer, sheet_name="ComCPFL", columns=colunas)
         empreendimento.com_acessadas().to_excel(writer, sheet_name= "ComAcessadas", columns=colunas)
-        empreendimento.com_projetista().to_excel(writer, sheet_name="ComsSIEMENS", columns=colunas)
+        empreendimento.com_projetista().to_excel(writer, sheet_name="ComProjetista", columns=colunas)
     
 
 if __name__ == "__main__":
@@ -40,32 +40,28 @@ if __name__ == "__main__":
                         "CPFL_Sul_II_PAL1_PE",
                         "CPFL_Sul_I_PE"
                         ]
+    colunas = ["Pasta", "Descricao", "Revisão", "Estado Workflow", "Dias"]
 
-    downloader = Construtivo.Download_Relatorios()
-
+    download = False
+    if download := input("Realizar o download dos relatórios? (s/n)\n") == "s":
+        downloader = Construtivo.Download_Relatorios()
 
     for empreendimento in empreendimentos:
-        downloader.acessar_empreendimento(empreendimento)
-        downloader.download_relatorio_gerencial()
-        downloader.download_visualiza_planejamento()
+
+        while True:
+            try:    
+                downloader.acessar_empreendimento(empreendimento)
+                downloader.download_relatorio_gerencial()
+                downloader.download_visualiza_planejamento()
+            except Exception:
+                continue
+            break
+
+        relatorio = Construtivo.Relatórios_Construtivo(f"Construtivo/gerencial_{empreendimento}.csv", f"Construtivo/planejamento_{empreendimento}.csv")
+        criar_relatorio(relatorio)
+        exportar_excel(relatorio, colunas, empreendimento)
     
-    downloader.fechar()
+    if downloader:
+        downloader.fechar()
 
-    #relatorios = [Osório, VilaMaria, PortoAlegre]
-
-
-    Osório = Construtivo.Relatórios_Construtivo("Construtivo/gerencial_CPFL_Sul_II_OSO3_PE.csv", "Construtivo/planejamento_CPFL_Sul_II_OSO3_PE.csv")
-    VilaMaria = Construtivo.Relatórios_Construtivo("Construtivo/gerencial_CPFL_Sul_II_VMT_PE.csv", "Construtivo/planejamento_CPFL_Sul_II_VMT_PE.csv")
-    PortoAlegre = Construtivo.Relatórios_Construtivo("Construtivo/gerencial_CPFL_Sul_II_PAL1_PE.csv", "Construtivo/planejamento_CPFL_Sul_II_PAL1_PE.csv")
-    Sul1 = Construtivo.Relatórios_Construtivo("Construtivo/gerencial_CPFL_Sul_I_PE.csv", "Construtivo/planejamento_CPFL_Sul_I_PE.csv")
-
-    criar_relatorio(Osório)
-    criar_relatorio(VilaMaria)
-    criar_relatorio(PortoAlegre)
-    criar_relatorio(Sul1)
-    colunas = ["Pasta", "Descricao", "Revisão", "Estado Workflow", "Dias"]
-    exportar_excel(Osório, colunas, "Oso")
-    exportar_excel(VilaMaria, colunas, "Vmt")
-    exportar_excel(PortoAlegre, colunas, "Pal")
-    exportar_excel(Sul1, colunas, "Sul1")
     print(f"Done!\n{datetime.now()}")
