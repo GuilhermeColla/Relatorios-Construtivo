@@ -42,20 +42,21 @@ if __name__ == "__main__":
                         ]
     colunas = ["Pasta", "Descricao", "Revisão", "Estado Workflow", "Dias"]
 
-    download = False
-    if download := input("Realizar o download dos relatórios? (s/n)\n") == "s":
+    downloader = False
+    if input("Realizar o download dos relatórios? (s/n)\n") == "s":
         downloader = Construtivo.Download_Relatorios()
 
     for empreendimento in empreendimentos:
 
-        while True:
-            try:    
-                downloader.acessar_empreendimento(empreendimento)
-                downloader.download_relatorio_gerencial()
-                downloader.download_visualiza_planejamento()
-            except Exception:
-                continue
-            break
+        if downloader:
+            while True:
+                try:    
+                    downloader.acessar_empreendimento(empreendimento)
+                    downloader.download_relatorio_gerencial()
+                    downloader.download_visualiza_planejamento()
+                except Exception:
+                    continue
+                break
 
         relatorio = Construtivo.Relatórios_Construtivo(f"Construtivo/gerencial_{empreendimento}.csv", f"Construtivo/planejamento_{empreendimento}.csv")
         criar_relatorio(relatorio)
