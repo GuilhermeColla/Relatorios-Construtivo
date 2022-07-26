@@ -208,7 +208,7 @@ class Download_Relatorios():
         self.driver.switch_to.window(self.driver.window_handles[1])
         self.wait.until(EC.element_to_be_clickable((By.ID, "gerarCSV")))
         self.driver.find_element(By.ID, "gerarCSV").click()
-        self.wait.until(EC.presence_of_element_located((By.CLASS_NAME, "baixarCsv")))
+        self.wait.until(EC.element_to_be_clickable((By.CLASS_NAME, "baixarCsv")))
         baixar_csv = self.driver.find_element(By.CLASS_NAME, "baixarCsv")
         
         check = len(os.listdir(self.caminho_pasta_download))
@@ -217,7 +217,8 @@ class Download_Relatorios():
             baixar_csv.click()
             print("click baixar.")
             time.sleep(2)
-        time.sleep(2)
+        time.sleep(5)
+        print(f"\n{self.nome_pasta_empreendimento} gerencial ok.\n")
 
         arquivo_novo = max(glob(self.caminho_pasta_download+f"/*.csv"), key=os.path.getctime)
         renomear = os.getenv("SAVE_PATH")
@@ -250,8 +251,9 @@ class Download_Relatorios():
             baixar_csv.click()
             print("click baixar.")
             time.sleep(2)
-        time.sleep(2)
-
+        time.sleep(5)
+        print(f"\n{self.nome_pasta_empreendimento} planejamento ok.\n")
+        
         arquivo_novo = max(glob(self.caminho_pasta_download+f"/*.csv"), key=os.path.getctime)
         renomear = os.getenv("SAVE_PATH")
         renomear = renomear + "/planejamento_" + self.nome_pasta_empreendimento + ".csv"
