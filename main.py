@@ -13,13 +13,6 @@ def criar_relatorio(empreendimento: Construtivo.Relatórios_Construtivo):
     empreendimento.relatorio_gerencial.set_index(["Código", "Estado Atual"], inplace=True)
     empreendimento.relatorio_gerencial.sort_index(inplace=True)
     empreendimento.remover_estados(empreendimento.relatorio_planejamento, "Estado Workflow", ["--"])
-   # empreendimento.remover_estados(empreendimento.relatorio_gerencial, 
-   #                                 [
-   #                                 "Obsoleto",
-   #                                 "Cancelado",
-   #                                 "Documento Previsto",
-   #                                 "Liberado para Execução"
-   #                                 ])
     empreendimento.dias_com_agentes("Estado Workflow")
 
 
@@ -48,20 +41,20 @@ if __name__ == "__main__":
 
     for empreendimento in empreendimentos:
 
-        if downloader:
-            while True:
-                try:    
+        while True:
+            try:
+                if downloader:
                     downloader.acessar_empreendimento(empreendimento)
                     downloader.download_relatorio_gerencial()
                     downloader.download_visualiza_planejamento()
-                except Exception:
-                    continue
-                break
+                relatorio = Construtivo.Relatórios_Construtivo(f"Construtivo/gerencial_{empreendimento}.csv", f"Construtivo/planejamento_{empreendimento}.csv")
+                criar_relatorio(relatorio)
+                exportar_excel(relatorio, colunas, empreendimento)
+            except Exception as err:
+                print(f"\n\n {err}")
+                continue
+            break
 
-        relatorio = Construtivo.Relatórios_Construtivo(f"Construtivo/gerencial_{empreendimento}.csv", f"Construtivo/planejamento_{empreendimento}.csv")
-        criar_relatorio(relatorio)
-        exportar_excel(relatorio, colunas, empreendimento)
-    
     if downloader:
         downloader.fechar()
 

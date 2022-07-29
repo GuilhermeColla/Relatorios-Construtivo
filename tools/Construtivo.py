@@ -21,7 +21,6 @@ from glob import glob
 
 class Relatórios_Construtivo():
     def __init__(self, caminho_relatorio_gerencial: str, caminho_relatorio_planejamento):
-        #TODO: Processar o relatório de Planejamento.
         '''
         Cria um objeto "Relatório".
         '''
@@ -140,7 +139,6 @@ class Download_Relatorios():
     fazer o download dos relatórios gerenciais e de planejamento dos 
     empreendimentos da empresa no Construtivo."""
 
-    #TODO: Error handling.
     
     def __init__(self) -> None:
         #Carregando os dados de usuário
@@ -148,7 +146,11 @@ class Download_Relatorios():
         self.caminho_pasta_download = os.getenv("DOWNLOAD_PATH")
         #Criando uma janela do Chrome.
         self.service = Service(executable_path=ChromeDriverManager().install())
-        self.driver = webdriver.Chrome(service=self.service)
+        #Alterando 'log-level' para que o console levante apenas tipos de erro 'FATAL'.
+        #Auth. note: Se eu lembrasse disso no começo do desenvolvimento desse módulo, tudo teria sido mais fácil de debugar....
+        chrome_options = webdriver.ChromeOptions()
+        chrome_options.add_argument("--log-level=3")
+        self.driver = webdriver.Chrome(service=self.service, options=chrome_options)
         self.driver.implicitly_wait(60)
         self.wait = WebDriverWait(self.driver, 60)
         self.limpar_arquivos_antigos()        
@@ -212,11 +214,16 @@ class Download_Relatorios():
         baixar_csv = self.driver.find_element(By.CLASS_NAME, "baixarCsv")
         
         check = len(os.listdir(self.caminho_pasta_download))
-
+        _timeout = 0
         while check == len(os.listdir(self.caminho_pasta_download)):
             baixar_csv.click()
             print("click baixar.")
             time.sleep(2)
+            _timeout += 1
+            if _timeout > 20:
+                self.driver.close()
+                self.driver.switch_to.window(self.janela_principal)
+                raise TimeoutError("Muitas tentativas de baixar documento. Reabrindo janela de relatório...")
         time.sleep(5)
         print(f"\n{self.nome_pasta_empreendimento} gerencial ok.\n")
 
@@ -246,11 +253,16 @@ class Download_Relatorios():
         baixar_csv = self.driver.find_element(By.CLASS_NAME, "baixarCsv")
 
         check = len(os.listdir(self.caminho_pasta_download))
-        
+        _timeout = 0
         while check == len(os.listdir(self.caminho_pasta_download)):
             baixar_csv.click()
             print("click baixar.")
             time.sleep(2)
+            _timeout += 1
+            if _timeout > 20:
+                self.driver.close()
+                self.driver.switch_to.window(self.janela_principal)
+                raise TimeoutError("Muitas tentativas de baixar documento. Reabrindo janela de relatório...")
         time.sleep(5)
         print(f"\n{self.nome_pasta_empreendimento} planejamento ok.\n")
         
