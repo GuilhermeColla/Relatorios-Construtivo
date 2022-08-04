@@ -6,14 +6,14 @@ adequando-os para a ferramenta em desenvolvimento.
 import re
 import shutil
 import pandas as pd
-from datetime import datetime
+from datetime import datetime, timedelta
 import os
 from webdriver_manager.chrome import ChromeDriverManager
 from dotenv import load_dotenv
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC, wait
+from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.service import Service
 import time
 from glob import glob
@@ -95,6 +95,73 @@ class Relatórios_Construtivo():
         self.relatorio_planejamento["Dias"] = diferencas
 
 
+    def dias_para_liberar(self):
+        """Função que determina quantos dias o documento ficou com cada agente.
+        Atualmente essa função não leva em consideração o tempo que documentos 
+        passaram com acessados."""
+
+
+        deltas = {
+        "Com CPFL" : [],
+        "Tempo total de fluxo": [],
+        "Com Projetista": [],
+        }
+
+
+        for código, _ in self.relatorio_planejamento.iterrows():
+
+            deltas["Tempo total de fluxo"].append(timedelta())
+            deltas["Com CPFL"].append(timedelta())
+            deltas["Com Projetista"].append(timedelta())
+            filtro = self.relatorio_gerencial.query("Código == @código", inplace=False)
+            
+            for _, alteracao_no_fluxo in filtro.groupby(level=0):
+            
+                for indice, datas in alteracao_no_fluxo.iterrows():
+                    
+                    if indice[1] == "Liberado para Execução":
+                        deltas["Tempo total de fluxo"][-1] += datetime.strptime(datas["Liberado para Execução"], "%d/%m/%Y %H:%M") - datetime.strptime(datas["Primeira Emissão"], "%d/%m/%Y %H:%M")
+                        
+                        if type(datas["Liberação CPFL"]) == str:
+                            deltas["Com Projetista"][-1] += datetime.strptime(datas["Liberação CPFL"], "%d/%m/%Y %H:%M") - datetime.strptime(datas["Distribuição"], "%d/%m/%Y %H:%M")
+                            
+                            if type(datas["Liberado para Execução"]) == str:
+                                deltas["Com CPFL"][-1] += datetime.strptime(datas["Liberado para Execução"], "%d/%m/%Y %H:%M") - datetime.strptime(datas["Liberação CPFL"], "%d/%m/%Y %H:%M")
+
+
+                    if indice[1] == "Obsoleto":
+                        
+                        if type(datas["Para Análise CPFL"]) == str:
+                            deltas["Com Projetista"][-1] += datetime.strptime(datas["Para Análise CPFL"], "%d/%m/%Y %H:%M") - datetime.strptime(datas["Distribuição"], "%d/%m/%Y %H:%M")
+                            
+                            if type(datas["Aprovado"]) == str:
+                                deltas["Com CPFL"][-1] += datetime.strptime(datas["Aprovado"], "%d/%m/%Y %H:%M") - datetime.strptime(datas["Para Análise CPFL"], "%d/%m/%Y %H:%M")
+                                deltas["Com Projetista"][-1] += datetime.strptime(datas["Obsoleto"], "%d/%m/%Y %H:%M") - datetime.strptime(datas["Aprovado"], "%d/%m/%Y %H:%M")
+                            
+                            elif type(datas["Aprovado com Comentários"]) == str:
+                                deltas["Com CPFL"][-1] += datetime.strptime(datas["Aprovado com Comentários"], "%d/%m/%Y %H:%M") - datetime.strptime(datas["Para Análise CPFL"], "%d/%m/%Y %H:%M")
+                                deltas["Com Projetista"][-1] += datetime.strptime(datas["Obsoleto"], "%d/%m/%Y %H:%M") - datetime.strptime(datas["Aprovado com Comentários"], "%d/%m/%Y %H:%M")
+                            
+                            elif type(datas["Não Aprovado"]) == str:
+                                deltas["Com CPFL"][-1] += datetime.strptime(datas["Não Aprovado"], "%d/%m/%Y %H:%M") - datetime.strptime(datas["Para Análise CPFL"], "%d/%m/%Y %H:%M")
+                                deltas["Com Projetista"][-1] += datetime.strptime(datas["Obsoleto"], "%d/%m/%Y %H:%M") - datetime.strptime(datas["Não Aprovado"], "%d/%m/%Y %H:%M")
+                        
+                        elif type(datas["Liberação CPFL"]) == str:
+                            deltas["Com Projetista"][-1] += datetime.strptime(datas["Liberação CPFL"], "%d/%m/%Y %H:%M") - datetime.strptime(datas["Distribuição"], "%d/%m/%Y %H:%M")
+
+                            if type(datas["Liberado para Execução"]) == str:
+                                deltas["Com CPFL"][-1] += datetime.strptime(datas["Liberado para Execução"], "%d/%m/%Y %H:%M") - datetime.strptime(datas["Liberação CPFL"], "%d/%m/%Y %H:%M")
+                            
+                            if type(datas["Para Revisão"]) == str:
+                                deltas["Com Projetista"][-1] += datetime.strptime(datas["Obsoleto"], "%d/%m/%Y %H:%M") - datetime.strptime(datas["Para Revisão"], "%d/%m/%Y %H:%M")
+                                
+                        else:
+                            deltas["Com Projetista"][-1] += datetime.strptime(datas["Obsoleto"], "%d/%m/%Y %H:%M") - datetime.strptime(datas["Distribuição"], "%d/%m/%Y %H:%M")
+
+        self.relatorio_planejamento["Com CPFL"] = deltas["Com CPFL"]
+        self.relatorio_planejamento["Com Projetista"] = deltas["Com Projetista"]
+        self.relatorio_planejamento["Tempo total de fluxo"] = deltas["Tempo total de fluxo"]
+
     def selecionar_estados(self, estados: list) -> pd.DataFrame:
         return self.relatorio_planejamento.query("`Estado Workflow` == @estados")
     
@@ -130,6 +197,9 @@ class Relatórios_Construtivo():
             "Para Análise Acessado_",
         ])
 
+    
+    def aprovados(self) -> pd.DataFrame:
+        return self.selecionar_estados(["Liberado para Execução"])
 
 
 
@@ -151,8 +221,8 @@ class Download_Relatorios():
         chrome_options = webdriver.ChromeOptions()
         chrome_options.add_argument("--log-level=3")
         self.driver = webdriver.Chrome(service=self.service, options=chrome_options)
-        self.driver.implicitly_wait(60)
-        self.wait = WebDriverWait(self.driver, 60)
+        self.driver.implicitly_wait(10)
+        self.wait = WebDriverWait(self.driver, 10)
         self.limpar_arquivos_antigos()        
         self.login()
 
@@ -220,7 +290,7 @@ class Download_Relatorios():
             print("click baixar.")
             time.sleep(2)
             _timeout += 1
-            if _timeout > 20:
+            if _timeout > 10:
                 self.driver.close()
                 self.driver.switch_to.window(self.janela_principal)
                 raise TimeoutError("Muitas tentativas de baixar documento. Reabrindo janela de relatório...")
@@ -259,7 +329,7 @@ class Download_Relatorios():
             print("click baixar.")
             time.sleep(2)
             _timeout += 1
-            if _timeout > 20:
+            if _timeout > 10:
                 self.driver.close()
                 self.driver.switch_to.window(self.janela_principal)
                 raise TimeoutError("Muitas tentativas de baixar documento. Reabrindo janela de relatório...")
