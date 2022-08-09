@@ -3,6 +3,7 @@ Utilizando PANDAS esse módulo vai formatar os relatórios extraídos do constru
 adequando-os para a ferramenta em desenvolvimento.
 '''
 
+from calendar import c
 import re
 import shutil
 import pandas as pd
@@ -97,9 +98,23 @@ class Relatórios_Construtivo():
 
     def dias_para_liberar(self):
         """Função que determina quantos dias o documento ficou com cada agente.
-        Atualmente essa função não leva em consideração o tempo que documentos 
-        passaram com acessados."""
+        Ela possui um problema gritante de excesso de 'if statements' devido a
+        complexidade do fluxo que um documento pode apresentar."""
+        #TODO Reduzir os if statements ou deixar mais profissional.
 
+
+        def _calculo_de_delta(valor1: str, valor2: str) -> timedelta:
+            """Retorna valor1 - valor2.
+            Os valores são processados com base no formato %d/%m/%Y %H:%M"""
+
+            ans = datetime.strptime(valor1, "%d/%m/%Y %H:%M") - datetime.strptime(valor2, "%d/%m/%Y %H:%M")
+            return ans
+
+        
+        def _retorno_do_agente() -> str:
+            for retorno in ["Aprovado", "Aprovado com Comentários", "Não Aprovado"]:
+                if isinstance(datas[retorno], str):
+                    return retorno
 
         deltas = {
         "Com CPFL" : [],
@@ -118,76 +133,60 @@ class Relatórios_Construtivo():
             for _, alteracao_no_fluxo in filtro.groupby(level=0):
             
                 for indice, datas in alteracao_no_fluxo.iterrows():
+                    
                     if indice[1] == "Liberado para Execução":
-                        deltas["Tempo total de fluxo"][-1] += datetime.strptime(datas["Liberado para Execução"], "%d/%m/%Y %H:%M") - datetime.strptime(datas["Primeira Emissão"], "%d/%m/%Y %H:%M")
+                        deltas["Tempo total de fluxo"][-1] += _calculo_de_delta(datas["Liberado para Execução"], datas["Primeira Emissão"])
                         
-                        if type(datas["Liberação CPFL"]) == str:
-                            deltas["Com Projetista"][-1] += datetime.strptime(datas["Liberação CPFL"], "%d/%m/%Y %H:%M") - datetime.strptime(datas["Distribuição"], "%d/%m/%Y %H:%M")
+                        if isinstance(datas["Liberação CPFL"], str):
+                            deltas["Com Projetista"][-1] += _calculo_de_delta(datas["Liberação CPFL"], datas["Distribuição"])
                             
-                            if type(datas["Para Análise Acessado_"]) == str:
-                                deltas["Com CPFL"][-1] += datetime.strptime(datas["Para Análise Acessado_"], "%d/%m/%Y %H:%M") - datetime.strptime(datas["Liberação CPFL"], "%d/%m/%Y %H:%M")
-                                deltas["Com Acessadas"][-1] += datetime.strptime(datas["Liberado para Execução"], "%d/%m/%Y %H:%M") - datetime.strptime(datas["Para Análise Acessado_"], "%d/%m/%Y %H:%M")
+                            if isinstance(datas["Para Análise Acessado_"], str):
+                                deltas["Com CPFL"][-1] += _calculo_de_delta(datas["Para Análise Acessado_"], datas["Liberação CPFL"])
+                                deltas["Com Acessadas"][-1] += _calculo_de_delta(datas["Liberado para Execução"], datas["Para Análise Acessado_"])
                                 
                             else:
-                                deltas["Com CPFL"][-1] += datetime.strptime(datas["Liberado para Execução"], "%d/%m/%Y %H:%M") - datetime.strptime(datas["Liberação CPFL"], "%d/%m/%Y %H:%M")
+                                deltas["Com CPFL"][-1] += _calculo_de_delta(datas["Liberado para Execução"], datas["Liberação CPFL"])
 
 
                     if indice[1] == "Obsoleto":
                         
-                        if type(datas["Para Análise CPFL"]) == str:
-                            deltas["Com Projetista"][-1] += datetime.strptime(datas["Para Análise CPFL"], "%d/%m/%Y %H:%M") - datetime.strptime(datas["Distribuição"], "%d/%m/%Y %H:%M")
+                        if isinstance(datas["Para Análise CPFL"], str):
+                            deltas["Com Projetista"][-1] += _calculo_de_delta(datas["Para Análise CPFL"], datas["Distribuição"])
                             
-                            if type(datas["Para Análise Acessado"]) == str:
-                                deltas["Com CPFL"][-1] += datetime.strptime(datas["Para Análise Acessado"], "%d/%m/%Y %H:%M") - datetime.strptime(datas["Para Análise CPFL"], "%d/%m/%Y %H:%M")
+                            if isinstance(datas["Para Análise Acessado"], str):
+                                deltas["Com CPFL"][-1] += _calculo_de_delta(datas["Para Análise Acessado"],datas["Para Análise CPFL"])
+                                deltas["Com Acessadas"][-1] += _calculo_de_delta(datas[_retorno_do_agente()], datas["Para Análise Acessado"])
 
-                                if type(datas["Aprovado"]) == str:
-                                    deltas["Com Acessadas"][-1] += datetime.strptime(datas["Para Análise Acessado"], "%d/%m/%Y %H:%M") - datetime.strptime(datas["Aprovado"], "%d/%m/%Y %H:%M")
-
-                                elif type(datas["Aprovado com Comentários"]) == str:
-                                    deltas["Com Acessadas"][-1] += datetime.strptime(datas["Para Análise Acessado"], "%d/%m/%Y %H:%M") - datetime.strptime(datas["Aprovado com Comentários"], "%d/%m/%Y %H:%M")
-                                
-                                elif type(datas["Não Aprovado"]) == str:
-                                    deltas["Com Acessadas"][-1] += datetime.strptime(datas["Para Análise Acessado"], "%d/%m/%Y %H:%M") - datetime.strptime(datas["Não Aprovado"], "%d/%m/%Y %H:%M")
-
-                            elif type(datas["Aprovado"]) == str:
-                                deltas["Com CPFL"][-1] += datetime.strptime(datas["Aprovado"], "%d/%m/%Y %H:%M") - datetime.strptime(datas["Para Análise CPFL"], "%d/%m/%Y %H:%M")
-                                deltas["Com Projetista"][-1] += datetime.strptime(datas["Obsoleto"], "%d/%m/%Y %H:%M") - datetime.strptime(datas["Aprovado"], "%d/%m/%Y %H:%M")
-                            
-                            elif type(datas["Aprovado com Comentários"]) == str:
-                                deltas["Com CPFL"][-1] += datetime.strptime(datas["Aprovado com Comentários"], "%d/%m/%Y %H:%M") - datetime.strptime(datas["Para Análise CPFL"], "%d/%m/%Y %H:%M")
-                                deltas["Com Projetista"][-1] += datetime.strptime(datas["Obsoleto"], "%d/%m/%Y %H:%M") - datetime.strptime(datas["Aprovado com Comentários"], "%d/%m/%Y %H:%M")
-                            
-                            elif type(datas["Não Aprovado"]) == str:
-                                deltas["Com CPFL"][-1] += datetime.strptime(datas["Não Aprovado"], "%d/%m/%Y %H:%M") - datetime.strptime(datas["Para Análise CPFL"], "%d/%m/%Y %H:%M")
-                                deltas["Com Projetista"][-1] += datetime.strptime(datas["Obsoleto"], "%d/%m/%Y %H:%M") - datetime.strptime(datas["Não Aprovado"], "%d/%m/%Y %H:%M")
+                            else:
+                                deltas["Com CPFL"][-1] += _calculo_de_delta(datas[_retorno_do_agente()], datas["Para Análise CPFL"])
+                                deltas["Com Projetista"][-1] += _calculo_de_delta(datas["Obsoleto"], datas[_retorno_do_agente()])
+ 
                         
-                        elif type(datas["Liberação CPFL"]) == str:
-                            deltas["Com Projetista"][-1] += datetime.strptime(datas["Liberação CPFL"], "%d/%m/%Y %H:%M") - datetime.strptime(datas["Distribuição"], "%d/%m/%Y %H:%M")
+                        elif isinstance(datas["Liberação CPFL"], str):
+                            deltas["Com Projetista"][-1] +=_calculo_de_delta(datas["Liberação CPFL"], datas["Distribuição"])
                             
-                            if type(datas["Para Análise Acessado_"]) == str:
-                                deltas["Com CPFL"][-1] += datetime.strptime(datas["Para Análise Acessado_"], "%d/%m/%Y %H:%M") - datetime.strptime(datas["Liberação CPFL"], "%d/%m/%Y %H:%M")
+                            if isinstance(datas["Para Análise Acessado_"], str):
+                                deltas["Com CPFL"][-1] += _calculo_de_delta(datas["Para Análise Acessado_"], datas["Liberação CPFL"])
                                 
-                                if (type(datas["Para Revisão"]) == str) and (type(datas["Liberado para Execução"]) == str):
+                                if isinstance(datas["Para Revisão"], str) and isinstance(datas["Liberado para Execução"], str):
                                     if datetime.strptime(datas["Para Revisão"], "%d/%m/%Y %H:%M") > datetime.strptime(datas["Liberado para Execução"], "%d/%m/%Y %H:%M"):
-                                        deltas["Com Acessadas"][-1] += datetime.strptime(datas["Liberado para Execução"], "%d/%m/%Y %H:%M") - datetime.strptime(datas["Para Análise Acessado_"], "%d/%m/%Y %H:%M")
+                                        deltas["Com Acessadas"][-1] += _calculo_de_delta(datas["Liberado para Execução"], datas["Para Análise Acessado_"])
                                     else:
-                                        deltas["Com Acessadas"][-1] += datetime.strptime(datas["Para Revisão"], "%d/%m/%Y %H:%M") - datetime.strptime(datas["Para Análise Acessado_"], "%d/%m/%Y %H:%M")
+                                        deltas["Com Acessadas"][-1] += _calculo_de_delta(datas["Para Revisão"], datas["Para Análise Acessado_"])
 
-                            if type(datas["Liberado para Execução"]) == str:
-                                deltas["Com CPFL"][-1] += datetime.strptime(datas["Liberado para Execução"], "%d/%m/%Y %H:%M") - datetime.strptime(datas["Liberação CPFL"], "%d/%m/%Y %H:%M")
+                            if isinstance(datas["Liberado para Execução"], str):
+                                deltas["Com CPFL"][-1] += _calculo_de_delta(datas["Liberado para Execução"], datas["Liberação CPFL"])
                             
-                            if type(datas["Para Revisão"]) == str:
-                                deltas["Com Projetista"][-1] += datetime.strptime(datas["Obsoleto"], "%d/%m/%Y %H:%M") - datetime.strptime(datas["Para Revisão"], "%d/%m/%Y %H:%M")
+                            if isinstance(datas["Para Revisão"], str):
+                                deltas["Com Projetista"][-1] += _calculo_de_delta(datas["Obsoleto"], datas["Para Revisão"])
                                 
                         else:
-                            deltas["Com Projetista"][-1] += datetime.strptime(datas["Obsoleto"], "%d/%m/%Y %H:%M") - datetime.strptime(datas["Distribuição"], "%d/%m/%Y %H:%M")
-                
+                            deltas["Com Projetista"][-1] += _calculo_de_delta(datas["Obsoleto"], datas["Distribuição"])
+        
+        for key in deltas.keys():
+            self.relatorio_planejamento[key] = deltas[key]
 
 
-        self.relatorio_planejamento["Com CPFL"] = deltas["Com CPFL"]
-        self.relatorio_planejamento["Com Projetista"] = deltas["Com Projetista"]
-        self.relatorio_planejamento["Com Acessadas"] = deltas["Com Acessadas"]
-        self.relatorio_planejamento["Tempo total de fluxo"] = deltas["Tempo total de fluxo"]
 
     def selecionar_estados(self, estados: list) -> pd.DataFrame:
         return self.relatorio_planejamento.query("`Estado Workflow` == @estados")
@@ -230,7 +229,7 @@ class Relatórios_Construtivo():
 
 
 
-class Download_Relatorios():
+class Downloader():
 
     """Esta classe cria um chrome webdriver (janela de navegador chrome) para
     fazer o download dos relatórios gerenciais e de planejamento dos 

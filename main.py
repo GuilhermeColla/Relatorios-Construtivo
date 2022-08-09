@@ -39,10 +39,10 @@ if __name__ == "__main__":
     colunas = ["Pasta", "Descricao", "Revisão", "Estado Workflow", "Dias"]
 
     downloader = False
-    if input("Realizar o download dos relatórios? (s/n)\n") == "s":
+    if downloader:
         while True:
             try:
-                downloader = Construtivo.Download_Relatorios()
+                downloader = Construtivo.Downloader()
             except Exception:
                 continue
             break
