@@ -25,7 +25,7 @@ def exportar_excel(empreendimento: Construtivo.Relatórios_Construtivo, colunas:
         empreendimento.com_CPFL().to_excel(writer, sheet_name="ComCPFL", columns=colunas)
         empreendimento.com_acessadas().to_excel(writer, sheet_name= "ComAcessadas", columns=colunas)
         empreendimento.com_projetista().to_excel(writer, sheet_name="ComProjetista", columns=colunas)
-        empreendimento.aprovados().to_excel(writer, sheet_name="Aprovados", columns=colunas)
+        #empreendimento.aprovados().to_excel(writer, sheet_name="Aprovados", columns=colunas)
         empreendimento.aprovados().to_excel(writer, sheet_name="Aprovados", columns=["Pasta", "Descricao", "Revisão", "Estado Workflow", "Data 1° Emissão", "Com CPFL", "Com Projetista", "Com Acessadas", "Tempo total de fluxo"])
 
         
@@ -38,7 +38,7 @@ if __name__ == "__main__":
                         ]
     colunas = ["Pasta", "Descricao", "Revisão", "Estado Workflow", "Dias"]
 
-    downloader = False
+    downloader = True
     if downloader:
         while True:
             try:

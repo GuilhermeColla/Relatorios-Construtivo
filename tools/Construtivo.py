@@ -3,7 +3,6 @@ Utilizando PANDAS esse módulo vai formatar os relatórios extraídos do constru
 adequando-os para a ferramenta em desenvolvimento.
 '''
 
-from calendar import c
 import re
 import shutil
 import pandas as pd
@@ -313,7 +312,6 @@ class Downloader():
         _timeout = 0
         while check == len(os.listdir(self.caminho_pasta_download)):
             baixar_csv.click()
-            print("click baixar.")
             time.sleep(2)
             _timeout += 1
             if _timeout > 10:
