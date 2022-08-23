@@ -72,8 +72,7 @@ class Relatórios_Construtivo():
 
     def dias_com_agentes(self, coluna_estado_atual: str) -> None:
 
-        #TODO: Os estados de "Alerta" acontecem após o estado normal. Devemos fazer 
-        #o calculo de acordo com o normal ou com o alerta?
+        
         '''Adiciona uma coluna com os dias que se passaram desde a mudança de
         estado do documento'''
         
@@ -350,7 +349,6 @@ class Downloader():
         _timeout = 0
         while check == len(os.listdir(self.caminho_pasta_download)):
             baixar_csv.click()
-            print("click baixar.")
             time.sleep(2)
             _timeout += 1
             if _timeout > 10:

@@ -5,7 +5,7 @@ Arquivo principal que gera os relatórios para os empreendimentos CPFL.
 import os
 from pandas import ExcelWriter
 from tools import Construtivo
-from datetime import datetime
+from datetime import date, datetime
 
 def criar_relatorio(empreendimento: Construtivo.Relatórios_Construtivo):
     empreendimento.remover_colunas(empreendimento.relatorio_gerencial, ["Seq.", "Autor", "Unnamed: 32"])
@@ -30,6 +30,8 @@ def exportar_excel(empreendimento: Construtivo.Relatórios_Construtivo, colunas:
 
         
 if __name__ == "__main__":
+
+    hora_de_inicio = datetime.now()
 
     empreendimentos = ["CPFL_Sul_II_OSO3_PE",
                         "CPFL_Sul_II_VMT_PE",
@@ -71,4 +73,4 @@ if __name__ == "__main__":
     if downloader:
         downloader.fechar()
 
-    print(f"Done!\n{datetime.now()}")
+    print(f"Pronto!\nTempo de processamento: {datetime.now()-hora_de_inicio}")
